@@ -10,14 +10,6 @@ if (process.env.NODE_ENV !== 'production') {
   });
 }
 
-const GEMINI_API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
-
-if (!GEMINI_API_KEY) {
-  const errorMsg = 'Gemini API key is not set. Please ensure NEXT_PUBLIC_GEMINI_API_KEY is set in your environment variables.';
-  console.error(errorMsg, { env: process.env });
-  throw new Error(errorMsg);
-}
-
 // Rate limiting configuration
 const RATE_LIMIT_DELAY = 2000; // 2 seconds between requests
 let lastRequestTime = 0;
@@ -36,8 +28,17 @@ const rateLimit = async () => {
   lastRequestTime = Date.now();
 };
 
-// Initialize the Google Generative AI client
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+// Lazily initialize the Google Generative AI client to avoid build-time errors
+function getGenAI(): GoogleGenerativeAI | null {
+  const key = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+  if (!key) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('Gemini API key is not set. Set NEXT_PUBLIC_GEMINI_API_KEY to enable AI responses.');
+    }
+    return null;
+  }
+  return new GoogleGenerativeAI(key);
+}
 
 // Message type used in the app
 export interface GeminiMessage {
@@ -49,6 +50,14 @@ export async function generateGeminiResponse(messages: GeminiMessage[], retryCou
   const MAX_RETRIES = 3;
   
   try {
+    // Ensure API is configured
+    const genAI = getGenAI();
+    if (!genAI) {
+      return process.env.NODE_ENV === 'production'
+        ? 'AI service is not configured.'
+        : 'AI service not configured. Set NEXT_PUBLIC_GEMINI_API_KEY.';
+    }
+
     // Apply rate limiting
     await rateLimit();
     
