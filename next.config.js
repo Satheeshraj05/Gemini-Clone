@@ -23,6 +23,10 @@ const nextConfig = {
   experimental: {
     serverExternalPackages: ['@prisma/client'],
   },
+  // Ensure environment variables are available at build time
+  env: {
+    NEXT_PUBLIC_GEMINI_API_KEY: process.env.NEXT_PUBLIC_GEMINI_API_KEY,
+  },
 }
 
 module.exports = nextConfig
