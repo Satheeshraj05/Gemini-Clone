@@ -41,6 +41,54 @@ Gemini Chat is a modern, privacy-focused AI chat application that leverages Goog
 - **Database**: Prisma ORM with SQLite (easy to switch to other databases)
 - **Styling**: Utility-first CSS with Tailwind
 
+## 🏗️ Implementation Details
+
+### 🔄 Throttling
+API requests are throttled to prevent rate limiting and ensure smooth performance. The application uses a custom hook `useThrottle` to limit the frequency of function calls.
+
+### 📚 Pagination & Infinite Scroll
+- Chat messages are loaded in pages using cursor-based pagination
+- The `useInfiniteQuery` hook from React Query handles loading more messages as the user scrolls
+- Messages are stored in a virtualized list for optimal performance
+
+### ✅ Form Validation
+- Client-side validation is implemented using React Hook Form with Zod schema validation
+- Real-time validation provides immediate feedback
+- Server-side validation ensures data integrity
+
+### 🗂️ Component Structure
+```
+src/
+├── components/
+│   ├── auth/           # Authentication components
+│   │   ├── SignInForm.tsx
+│   │   ├── VerifyOTP.tsx
+│   │   └── AuthProvider.tsx
+│   ├── chat/           # Chat components
+│   │   ├── ChatWindow.tsx
+│   │   ├── MessageList.tsx
+│   │   ├── MessageInput.tsx
+│   │   └── ChatHeader.tsx
+│   └── ui/             # Reusable UI components
+│       ├── Button.tsx
+│       ├── Input.tsx
+│       └── Spinner.tsx
+├── hooks/              # Custom hooks
+│   ├── useThrottle.ts
+│   └── useChat.ts
+└── lib/               # Utility functions
+    ├── validation.ts  # Validation schemas
+    └── api.ts         # API client
+```
+
+### 🖼️ Application Screenshots
+
+#### Authentication Flow
+![Authentication](screenshots/Screenshot%202025-08-15%20at%2012.07.02%E2%80%AFAM.png)
+
+#### Chat Interface
+![Chat Interface](screenshots/Screenshot%202025-08-15%20at%2012.07.39%E2%80%AFAM.png)
+
 ## 🚀 Tech Stack
 
 ### Core Technologies
@@ -190,21 +238,3 @@ gemini-chat-app/
    npm run start
    ```
 
-## 🤝 Contributing
-
-Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- [Next.js](https://nextjs.org/) for the amazing React framework
-- [Google Gemini](https://ai.google.dev/) for the powerful AI capabilities
-- [Prisma](https://www.prisma.io/) for the database ORM
-- [NextAuth.js](https://next-auth.js.org/) for authentication
-- [Tailwind CSS](https://tailwindcss.com/) for styling
-
-## License
-MIT
