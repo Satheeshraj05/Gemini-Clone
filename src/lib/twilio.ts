@@ -4,16 +4,25 @@ const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const verifyServiceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
 
-if (!accountSid || !authToken || !verifyServiceSid) {
-  throw new Error('Missing required Twilio environment variables');
+// Validate environment variables at module load time
+function getRequiredEnvVar(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
+  return value;
 }
 
-const client = twilio(accountSid, authToken);
+const twilioAccountSid = getRequiredEnvVar('TWILIO_ACCOUNT_SID');
+const twilioAuthToken = getRequiredEnvVar('TWILIO_AUTH_TOKEN');
+const twilioVerifyServiceSid = getRequiredEnvVar('TWILIO_VERIFY_SERVICE_SID');
+
+const client = twilio(twilioAccountSid, twilioAuthToken);
 
 export async function sendVerificationCode(phoneNumber: string) {
   try {
     const verification = await client.verify.v2
-      .services(verifyServiceSid)
+      .services(twilioVerifyServiceSid)
       .verifications
       .create({ to: phoneNumber, channel: 'sms' });
     
@@ -27,7 +36,7 @@ export async function sendVerificationCode(phoneNumber: string) {
 export async function verifyCode(phoneNumber: string, code: string) {
   try {
     const verificationCheck = await client.verify.v2
-      .services(verifyServiceSid)
+      .services(twilioVerifyServiceSid)
       .verificationChecks
       .create({ to: phoneNumber, code });
 
