@@ -118,28 +118,10 @@ export function SignInContent() {
     try {
       const phoneNumber = formatPhoneNumber(verificationData.countryCode, verificationData.phoneNumber);
       
-      // Verify the OTP with our API
-      const response = await fetch('/api/auth/verify-otp', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          phoneNumber,
-          code: otp 
-        }),
-      });
-      
-      const result = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(result.error || 'Invalid verification code');
-      }
-      
-      // OTP verified successfully, now sign in the user
+      // Sign in with credentials (OTP will be verified in the authorize callback)
       const signInResult = await signIn('credentials', {
-        phoneNumber: verificationData.phoneNumber,
-        countryCode: verificationData.countryCode,
+        phoneNumber: phoneNumber,
+        otp: otp,
         redirect: false,
       });
 

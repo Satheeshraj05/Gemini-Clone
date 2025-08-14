@@ -37,19 +37,36 @@ export const authOptions = {
       },
       async authorize(credentials) {
         try {
-          if (!credentials?.phoneNumber || typeof credentials.phoneNumber !== 'string') {
-            console.log('No valid phone number provided');
-            return null;
+          if (!credentials?.phoneNumber || typeof credentials.phoneNumber !== 'string' || !credentials.otp) {
+            console.log('Missing required credentials');
+            throw new Error('Phone number and OTP are required');
           }
 
           console.log('Authorizing user with phone number:', credentials.phoneNumber);
           
-          // In a real app, verify OTP here
-          // For now, return a test user
+          // Verify OTP with Twilio
+          const response = await fetch(`${process.env.NEXTAUTH_URL}/api/auth/verify-otp`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              phoneNumber: credentials.phoneNumber,
+              code: credentials.otp
+            })
+          });
+          
+          const result = await response.json();
+          
+          if (!response.ok) {
+            console.error('OTP verification failed:', result.error);
+            throw new Error(result.error || 'Invalid verification code');
+          }
+          
+          // Create or find user in your database
+          // For now, return a user object
           const user = {
-            id: '1',
-            name: 'Test User',
-            email: 'test@example.com',
+            id: credentials.phoneNumber, // Use phone number as ID
+            name: 'User',
+            email: `${credentials.phoneNumber}@example.com`,
             phoneNumber: credentials.phoneNumber,
             role: 'user',
             isVerified: true,
