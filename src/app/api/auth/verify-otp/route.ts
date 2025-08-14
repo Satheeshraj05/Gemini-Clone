@@ -1,38 +1,47 @@
-import { NextResponse } from 'next/server';
 import { verifyCode } from '@/lib/twilio';
+import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
     const { phoneNumber, code } = await request.json();
     
     if (!phoneNumber || !code) {
+      console.error('Missing required fields:', { phoneNumber: !!phoneNumber, code: !!code });
       return NextResponse.json(
         { error: 'Phone number and code are required' },
         { status: 400 }
       );
     }
 
-    const result = await verifyCode(phoneNumber, code);
+    console.log('Verifying OTP for:', phoneNumber);
+    console.log('Using Verify Service SID:', process.env.TWILIO_VERIFY_SERVICE_SID);
     
-    if (!result.success) {
+    const verificationCheck = await verifyCode(phoneNumber, code).catch(error => {
+      console.error('Twilio Verify Error:', error);
+      throw new Error(`Twilio verification failed: ${error.message}`);
+    });
+    
+    console.log('Verification response:', verificationCheck);
+
+    if (verificationCheck.status === 'approved') {
+      return NextResponse.json({ success: true });
+    } else {
+      console.error('Verification failed:', verificationCheck.status);
       return NextResponse.json(
         { 
-          success: false, 
-          error: result.error || 'Invalid verification code',
-          status: result.status
+          error: 'Invalid verification code',
+          details: verificationCheck.status
         },
         { status: 400 }
       );
     }
-
-    return NextResponse.json({ 
-      success: true,
-      status: result.status
-    });
   } catch (error) {
-    console.error('Verify OTP error:', error);
+    console.error('OTP Verification Error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        error: 'Failed to verify OTP',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }

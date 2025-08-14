@@ -10,14 +10,43 @@ function getRequiredEnvVar(name: string): string {
   if (!value) {
     throw new Error(`Missing required environment variable: ${name}`);
   }
+  
+  // Special validation for Account SID
+  if (name === 'TWILIO_ACCOUNT_SID' && !value.startsWith('AC')) {
+    throw new Error(`Invalid TWILIO_ACCOUNT_SID: Must start with 'AC'`);
+  }
+  
+  // Special validation for Verify Service SID
+  if (name === 'TWILIO_VERIFY_SERVICE_SID' && !value.startsWith('VA')) {
+    throw new Error(`Invalid TWILIO_VERIFY_SERVICE_SID: Must start with 'VA'`);
+  }
+  
   return value;
 }
 
-const twilioAccountSid = getRequiredEnvVar('TWILIO_ACCOUNT_SID');
-const twilioAuthToken = getRequiredEnvVar('TWILIO_AUTH_TOKEN');
-const twilioVerifyServiceSid = getRequiredEnvVar('TWILIO_VERIFY_SERVICE_SID');
+// Get environment variables with validation
+let twilioAccountSid: string;
+let twilioAuthToken: string;
+let twilioVerifyServiceSid: string;
 
-const client = twilio(twilioAccountSid, twilioAuthToken);
+try {
+  twilioAccountSid = getRequiredEnvVar('TWILIO_ACCOUNT_SID');
+  twilioAuthToken = getRequiredEnvVar('TWILIO_AUTH_TOKEN');
+  twilioVerifyServiceSid = getRequiredEnvVar('TWILIO_VERIFY_SERVICE_SID');
+  
+  console.log('Twilio environment variables validated successfully');
+  console.log('Account SID starts with:', twilioAccountSid.substring(0, 5) + '...');
+  console.log('Verify Service SID starts with:', twilioVerifyServiceSid.substring(0, 5) + '...');
+} catch (error) {
+  console.error('Twilio initialization error:', error);
+  throw error;
+}
+
+// Initialize Twilio client with explicit region
+const client = twilio(twilioAccountSid, twilioAuthToken, {
+  region: 'us1', // or your region if different
+  edge: 'ashburn', // optional: specify edge location if needed
+});
 
 export async function sendVerificationCode(phoneNumber: string) {
   try {
