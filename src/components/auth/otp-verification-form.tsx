@@ -44,14 +44,8 @@ export function OtpVerificationForm({
     setIsSubmitting(true);
     
     try {
-      // Simulate OTP verification
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // In a real app, you would verify the OTP with your backend here
-      // const response = await verifyOtp(phoneNumber, countryCode, otp);
-      // if (!response.success) throw new Error(response.error);
-      
-      // Pass the OTP to the success handler
+      // The actual verification is now handled by the parent component
+      // which calls our API endpoint that verifies with Twilio
       onSuccess(otp);
     } catch (error) {
       console.error('OTP verification failed:', error);

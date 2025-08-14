@@ -59,21 +59,51 @@ export function SignInContent() {
     }
   }, [searchParams]);
 
+  const formatPhoneNumber = (countryCode: string | undefined, phoneNumber: string): string => {
+    // Ensure country code has + and phone number has no non-digit characters
+    const cleanCountryCode = (countryCode || '+1').replace(/\D/g, ''); // Default to +1 if not provided
+    const cleanNumber = phoneNumber.replace(/\D/g, '');
+    
+    // Return in E.164 format: +[country code][number]
+    return `+${cleanCountryCode}${cleanNumber}`;
+  };
+
   const onSubmit = async (data: PhoneNumberFormValues) => {
     setIsLoading(true);
     try {
-      // Simulate API call for OTP verification
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const phoneNumber = formatPhoneNumber(data.countryCode, data.phoneNumber);
+      
+      // Call our API to send OTP via Twilio
+      const response = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ phoneNumber }),
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to send verification code');
+      }
       
       setVerificationData({
         phoneNumber: data.phoneNumber,
-        countryCode: data.countryCode || '+1', // Provide a default value
+        countryCode: data.countryCode || '+1',
       });
       setShowOtpForm(true);
+      
+      toast({
+        title: 'Verification code sent',
+        description: 'Please check your phone for the verification code.',
+      });
+      
     } catch (error) {
+      console.error('Error sending OTP:', error);
       toast({
         title: 'Error',
-        description: 'Failed to send verification code. Please try again.',
+        description: error instanceof Error ? error.message : 'Failed to send verification code. Please try again.',
         variant: 'destructive',
       });
     } finally {
@@ -86,29 +116,39 @@ export function SignInContent() {
     
     setIsLoading(true);
     try {
-      // Simulate OTP verification
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const phoneNumber = formatPhoneNumber(verificationData.countryCode, verificationData.phoneNumber);
       
-      // In a real app, you would verify the OTP with your backend
-      const isValidOtp = otp.length === 6; // Simple validation for demo
+      // Verify the OTP with our API
+      const response = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          phoneNumber,
+          code: otp 
+        }),
+      });
       
-      if (isValidOtp) {
-        // Sign in the user after successful OTP verification
-        const result = await signIn('credentials', {
-          phoneNumber: verificationData.phoneNumber,
-          countryCode: verificationData.countryCode,
-          redirect: false,
-        });
-
-        if (result?.error) {
-          throw new Error(result.error);
-        }
-
-        // Redirect to dashboard on successful sign-in
-        router.push('/dashboard');
-      } else {
-        throw new Error('Invalid OTP');
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.error || 'Invalid verification code');
       }
+      
+      // OTP verified successfully, now sign in the user
+      const signInResult = await signIn('credentials', {
+        phoneNumber: verificationData.phoneNumber,
+        countryCode: verificationData.countryCode,
+        redirect: false,
+      });
+
+      if (signInResult?.error) {
+        throw new Error(signInResult.error);
+      }
+
+      // Redirect to dashboard on successful sign-in
+      router.push('/dashboard');
     } catch (error) {
       toast({
         title: 'Error',
