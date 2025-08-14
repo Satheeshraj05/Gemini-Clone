@@ -217,24 +217,3 @@ gemini-chat-app/
 └── tests/                # Test files
 ```
 
-## 🌐 Deployment
-
-### Vercel (Recommended)
-
-1. Push your code to a GitHub/GitLab/Bitbucket repository
-2. Import the repository to Vercel
-3. Add your environment variables in the Vercel dashboard
-4. Deploy!
-
-### Self-hosting
-
-1. Build the application:
-   ```bash
-   npm run build
-   ```
-
-2. Start the production server:
-   ```bash
-   npm run start
-   ```
-
