@@ -2,9 +2,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 import NextAuth, { DefaultSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-
-// Initialize Prisma Client
-const prisma = new PrismaClient();
+import { prisma } from "./prisma";
 
 // Define the shape of the user data we'll be working with
 type AuthUser = {

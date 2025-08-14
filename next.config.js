@@ -8,14 +8,20 @@ const nextConfig = {
   images: {
     domains: ['lh3.googleusercontent.com', 'avatars.githubusercontent.com'],
   },
-  webpack: (config) => {
-    config.resolve.fallback = { 
-      ...config.resolve.fallback,
-      fs: false,
-      net: false,
-      tls: false,
-    };
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      // Don't include Prisma Client in the browser
+      config.resolve.fallback = { 
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
     return config;
+  },
+  experimental: {
+    serverExternalPackages: ['@prisma/client'],
   },
 }
 
