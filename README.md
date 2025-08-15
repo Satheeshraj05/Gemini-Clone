@@ -90,7 +90,7 @@ src/
 ![Chat Interface](screenshots/Screenshot%202025-08-15%20at%2012.07.39%E2%80%AFAM.png)
 
 #### Mobile Chat View
-![Mobile Chat View](screenshots/Screenshot%202025-08-15%20at%202.13.21%20PM.png)
+![Mobile Chat View](screenshots/Screenshot%202025-08-15%20at%202.13.21%E2%80%AFPM.png)
 
 ## 🚀 Tech Stack
 
