@@ -88,7 +88,9 @@ src/
 
 #### Chat Interface
 ![Chat Interface](screenshots/Screenshot%202025-08-15%20at%2012.07.39%E2%80%AFAM.png)
-![Chat Interface](screenshots/Screenshot%202025-08-15%20at%202.13.21%20PM.png)
+
+#### Chat Interface
+![Chat Interface](screenshots/Screenshot%202025-08-15%20at%2012.07.39%E2%80%AFAM.png)
 
 ## 🚀 Tech Stack
 
