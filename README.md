@@ -145,15 +145,29 @@ src/
    
    # Google Gemini
    NEXT_PUBLIC_GEMINI_API_KEY=your_gemini_api_key
+
+   # Twilio (SMS Authentication)
+   TWILIO_ACCOUNT_SID=your_twilio_account_sid  # Starts with 'AC'
+   TWILIO_AUTH_TOKEN=your_twilio_auth_token
+   TWILIO_VERIFY_SERVICE_SID=your_verify_service_sid  # Starts with 'VA'
    ```
 
-4. **Set up the database**
+4. **Set up Twilio Verify Service**
+   - Sign up for a [Twilio account](https://www.twilio.com/try-twilio) if you don't have one
+   - Go to the [Twilio Console](https://console.twilio.com/)
+   - Navigate to Verify > Services > Create new service
+   - Name your service (e.g., "Gemini Chat Verify")
+   - Copy the Service SID (starts with 'VA') and add it to your `.env.local`
+   - In the service settings, enable "SMS" as a channel
+   - Optional: Customize your SMS template under "Templates"
+
+5. **Set up the database**
    ```bash
    npx prisma generate
    npx prisma migrate dev --name init
    ```
 
-5. **Run the development server**
+6. **Run the development server**
    ```bash
    npm run dev
    # or
